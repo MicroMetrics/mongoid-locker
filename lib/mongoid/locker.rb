@@ -139,7 +139,11 @@ module Mongoid
           '$and': [
             { locking_name_field => { '$exists': true, '$ne': nil } },
             { locked_at_field => { '$exists': true, '$ne': nil } },
-            { '$where': "new Date() - this.#{locked_at_field} < #{lock_timeout * 1000}" }
+            { 
+              # Compare locked_at to current date in seconds plus lockout time
+              model.locked_at_field => { '$lt': DateTime.now.to_i + model.lock_timeout }
+              # Replaces JS: '$where': "new Date() - this.#{locked_at_field} < #{lock_timeout * 1000}"  
+            }
           ]
         )
       end
@@ -169,7 +173,9 @@ module Mongoid
               ]
             },
             {
-              '$where': "new Date() - this.#{locked_at_field} >= #{lock_timeout * 1000}"
+              # Compare locked_at to current date in seconds plus lockout time
+              model.locked_at_field => { '$gte': DateTime.now.to_i + model.lock_timeout }
+              # Replaces JS: '$where': "new Date() - this.#{locked_at_field} >= #{lock_timeout * 1000}"
             }
           ]
         )
