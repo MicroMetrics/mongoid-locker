@@ -37,7 +37,7 @@ module Mongoid
             },
             {
               # Compare locked_at to current date in seconds plus lockout time
-              model.locked_at_field => { '$lt': Time.now - model.lock_timeout.seconds }
+              model.locked_at_field => { '$lt': Time.now - model.lock_timeout }
               # Replaces JS:
               # '$where': "new Date() - this.#{model.locked_at_field} >= #{model.lock_timeout * 1000}"
             }
